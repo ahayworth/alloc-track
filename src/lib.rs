@@ -273,18 +273,19 @@ pub fn backtrace_report(
 }
 #[cfg(unix)]
 fn os_tid_names() -> HashMap<u32, String> {
-    let mut os_tid_names: HashMap<u32, String> = HashMap::new();
-    for task in procfs::process::Process::myself().unwrap().tasks().unwrap() {
-        let task = task.unwrap();
-        os_tid_names.insert(
-            task.tid as u32,
-            std::fs::read_to_string(format!("/proc/{}/task/{}/comm", task.pid, task.tid))
-                .unwrap()
-                .trim()
-                .to_string(),
-        );
-    }
-    os_tid_names
+    HashMap::default()
+    // let mut os_tid_names: HashMap<u32, String> = HashMap::new();
+    // for task in procfs::process::Process::myself().unwrap().tasks().unwrap() {
+    //     let task = task.unwrap();
+    //     os_tid_names.insert(
+    //         task.tid as u32,
+    //         std::fs::read_to_string(format!("/proc/{}/task/{}/comm", task.pid, task.tid))
+    //             .unwrap()
+    //             .trim()
+    //             .to_string(),
+    //     );
+    // }
+    // os_tid_names
 }
 
 #[cfg(windows)]
@@ -361,6 +362,8 @@ pub fn thread_report() -> ThreadReport {
         }
         if let Some(name) = os_tid_names.get(&tid) {
             tid_names.insert(i, name);
+        } else {
+            tid_names.insert(i, &format!("thread<{i}>"));
         }
     }
 

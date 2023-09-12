@@ -106,7 +106,8 @@ impl<T: GlobalAlloc> AllocTrack<T> {
 #[cfg(unix)]
 #[inline(always)]
 unsafe fn get_sys_tid() -> u32 {
-    libc::syscall(libc::SYS_gettid) as u32
+    // libc::syscall(libc::SYS_gettid) as u32
+    0
 }
 #[cfg(windows)]
 #[inline(always)]
@@ -123,8 +124,8 @@ unsafe impl<T: GlobalAlloc> GlobalAlloc for AllocTrack<T> {
             let ptr = self.inner.alloc(layout);
             let tid = THREAD_ID.with(|x| *x);
             if THREAD_STORE[tid].tid.load(Ordering::Relaxed) == 0 {
-                let os_tid = get_sys_tid();
-                THREAD_STORE[tid].tid.store(os_tid, Ordering::Relaxed);
+                // let os_tid = get_sys_tid();
+                // THREAD_STORE[tid].tid.store(os_tid, Ordering::Relaxed);
             }
             THREAD_STORE[tid].alloc.fetch_add(size, Ordering::Relaxed);
             #[cfg(feature = "backtrace")]

@@ -354,39 +354,41 @@ pub fn test_os_tid_names() {
 /// Generate a memory usage report
 /// Note that the numbers are not a synchronized snapshot, and have slight timing skew.
 pub fn thread_report() -> ThreadReport {
-    let os_tid_names = os_tid_names();
-    let mut tid_names: HashMap<usize, &String> = HashMap::new();
-    for (i, thread) in THREAD_STORE.iter().enumerate() {
-        let tid = thread.tid.load(Ordering::Relaxed);
-        if tid == 0 {
-            continue;
-        }
-        if let Some(name) = os_tid_names.get(&tid) {
-            tid_names.insert(i, name);
-        } else {
-            tid_names.insert(i, &format!("thread<{i}>"));
-        }
-    }
+    // let os_tid_names = os_tid_names();
+    // let mut tid_names: HashMap<usize, &String> = HashMap::new();
+    // for (i, thread) in THREAD_STORE.iter().enumerate() {
+    //     let tid = thread.tid.load(Ordering::Relaxed);
+    //     if tid == 0 {
+    //         continue;
+    //     }
+    //     if let Some(name) = os_tid_names.get(&tid) {
+    //         tid_names.insert(i, name);
+    //     } else {
+    //         tid_names.insert(i, &format!("thread<{i}>"));
+    //     }
+    // }
 
     let mut metrics = BTreeMap::new();
 
     for (i, thread) in THREAD_STORE.iter().enumerate() {
-        let name = if let Some(name) = tid_names.get(&i) {
-            *name
-        } else {
-            continue;
-        };
+        // let name = if let Some(name) = tid_names.get(&i) {
+        //     *name
+        // } else {
+        //     continue;
+        // };
+        let name = i.to_string();
         let alloced = thread.alloc.load(Ordering::Relaxed) as u64;
         let metric: &mut ThreadMetric = metrics.entry(name.clone()).or_default();
         metric.total_alloc += alloced;
 
         let mut total_free: u64 = 0;
         for (j, thread2) in THREAD_STORE.iter().enumerate() {
-            let name = if let Some(name) = tid_names.get(&j) {
-                *name
-            } else {
-                continue;
-            };
+            // let name = if let Some(name) = tid_names.get(&j) {
+            //     *name
+            // } else {
+            //     continue;
+            // };
+            let name = j.to_string();
             let freed = thread2.free[i].load(Ordering::Relaxed);
             if freed == 0 {
                 continue;
